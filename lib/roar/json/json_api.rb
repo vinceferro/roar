@@ -160,6 +160,10 @@ module Roar
 
       module Document
         def to_hash(options={})
+          if self.represented.respond_to?(:errors)
+            return render_errors unless self.represented.errors.count == 0
+          end
+
           res = super(Options::Include.(options, self))
 
           links = Renderer::Links.new.call(res, options)
@@ -200,6 +204,10 @@ module Roar
 
           # this is the format the object representer understands.
           attributes # {"title"=>"Ember Hamster", "author"=>{"type"=>"people", "id"=>"9"}}
+        end
+
+        def render_errors()
+          { errors: self.represented.errors }
         end
 
         # Go through {"album"=>{"title"=>"Hackers"}, "musicians"=>[{"name"=>"Eddie Van Halen"}, ..]} from linked:
